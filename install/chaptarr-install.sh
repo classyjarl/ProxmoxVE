@@ -34,12 +34,13 @@ $STD npm install -g yarn
 msg_ok "Installed Build Toolchain"
 
 msg_info "Cloning Chaptarr Source"
-mkdir -p /opt/chaptarr-src
+rm -rf /opt/chaptarr-src
 cd /opt
 $STD git clone https://github.com/chaptarr/chaptarr.git chaptarr-src
 cd /opt/chaptarr-src
-RELEASE=$(curl -fsSL https://api.github.com/repos/chaptarr/chaptarr/releases/latest 2>/dev/null | jq -r '.tag_name // empty')
-if [[ -n "$RELEASE" && "$RELEASE" != "null" ]]; then
+# Try latest tag from git itself; fall back to HEAD if no tags exist
+RELEASE=$(git tag -l | sort -V | tail -1)
+if [[ -n "$RELEASE" ]]; then
   $STD git checkout "$RELEASE"
 else
   RELEASE=$(git rev-parse --short HEAD)
